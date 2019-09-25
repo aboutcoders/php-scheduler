@@ -12,25 +12,25 @@ Features:
 ## Getting Started
 
 1. Define a schedule provider by implementing `ProviderInterfacve`.
-	
+
 	```php
 	namespace Abc\Scheduler;
 	
 	interface ProviderInterface
 	{
-		/**
-		 * @return string The provider's name, used to bind a provider to processors
-		 */
-		public function getName(): string;
+	    /**
+	     * @return string The provider's name, used to bind a provider to processors
+	     */
+	    public function getName(): string;
 	
-		/**
-		 * @param int|null $limit
-		 * @param int|null $offset
-		 * @return ScheduleInterface[]
-		 */
-		public function provideSchedules(int $limit = null, int $offset = null): array;
+	    /**
+	     * @param int|null $limit
+	     * @param int|null $offset
+	     * @return ScheduleInterface[]
+	     */
+	    public function provideSchedules(int $limit = null, int $offset = null): array;
 	
-		public function save(ScheduleInterface $schedule): void;
+	    public function save(ScheduleInterface $schedule): void;
 	}
 	```
 
@@ -44,7 +44,7 @@ Features:
 	 */
 	interface ProcessorInterface
 	{
-		public function process(ScheduleInterface $schedule);
+	    public function process(ScheduleInterface $schedule);
 	}
 	```
 
