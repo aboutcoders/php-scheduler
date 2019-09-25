@@ -1,10 +1,10 @@
 # abc-scheduler
 
-A PHP library to process schedules base on [Symfony Console Component](https://github.com/symfony/console).
+A PHP library to process schedules base on CRON expressions.
 
 Features:
-* Call a processor whenever a schedule is due
-* Support for CRON based schedules
+* Define schedules CRON based on con expressions 
+* Symfony Console Command to run scheduler
 * Simple integration by implementing two interfaces
 
 **Note: This project is still in an experimental phase!**
@@ -62,7 +62,7 @@ Features:
 	
 	$command = new ScheduleCommand($scheduler);
 	```
-	
+    
 4. Run the command
 
 	```bash
