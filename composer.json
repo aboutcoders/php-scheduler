@@ -1,0 +1,36 @@
+{
+  "name": "abc/scheduler",
+  "type": "library",
+  "description": "Library for to manage schedules for repeated execution of tasks",
+  "keywords": [
+    "cron",
+    "schedule",
+    "scheduler"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Hannes Schulz",
+      "email": "hannes.schulz@aboutcoders.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "psr/log": "^1.1",
+    "mtdowling/cron-expression": "^1.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.0",
+    "symfony/console": "^4.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Abc\\Scheduler\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Abc\\Scheduler\\Tests\\": "tests/"
+    }
+  }
+}
