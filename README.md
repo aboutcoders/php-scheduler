@@ -9,6 +9,12 @@ Features:
 
 **Note: This project is still in an experimental phase!**
 
+## Installation
+
+```bash
+composer require abc/scheduler
+```
+
 ## Getting Started
 
 1. Define a schedule provider by implementing `ProviderInterfacve`.
