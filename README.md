@@ -7,6 +7,8 @@ Features:
 * Symfony Console Command to run scheduler
 * Simple integration by implementing two interfaces
 
+[![Build Status](https://travis-ci.org/aboutcoders/php-scheduler.png?branch=master)](https://travis-ci.org/aboutcoders/php-scheduler)
+
 **Note: This project is still in an experimental phase!**
 
 ## Installation
