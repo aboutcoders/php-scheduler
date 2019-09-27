@@ -1,9 +1,9 @@
-# abc-scheduler
+# php-scheduler
 
 A PHP library to process schedules base on CRON expressions.
 
 Features:
-* Define schedules CRON based on con expressions 
+* Define schedules based on CRON expressions 
 * Symfony Console Command to run scheduler
 * Simple integration by implementing two interfaces
 
@@ -76,9 +76,6 @@ composer require abc/scheduler
 	```bash
 	bin/console abc:schedule
 	```
-
-## Todo
-- allow multiple processors per schedule
 
 ## License
 

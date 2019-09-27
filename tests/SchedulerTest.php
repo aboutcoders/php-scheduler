@@ -169,8 +169,8 @@ class SchedulerTest extends TestCase
 
         $runtimeExtension = $this->createMock(ExtensionInterface::class);
         $runtimeExtension->expects($this->any())->method('onCheckSchedule')->willReturnCallback($setScheduleDue);
-        $runtimeExtension->expects($this->at(5))->method('onPreProcessSchedule')->withConsecutive($this->callback($this->getCycleEqualsCallback(1)), $this->callback($this->getCycleEqualsCallback(2)));
-        $runtimeExtension->expects($this->at(6))->method('onScheduleProcessed')->withConsecutive($this->callback($this->getCycleEqualsCallback(1)), $this->callback($this->getCycleEqualsCallback(2)));
+        $runtimeExtension->expects($this->at(5))->method('onPreProcessSchedule')->withConsecutive([$this->callback($this->getCycleEqualsCallback(1))], [$this->callback($this->getCycleEqualsCallback(2))]);
+        $runtimeExtension->expects($this->at(6))->method('onScheduleProcessed')->withConsecutive([$this->callback($this->getCycleEqualsCallback(1))], [$this->callback($this->getCycleEqualsCallback(2))]);
 
         $this->subject->schedule($runtimeExtension);
     }
