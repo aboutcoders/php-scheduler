@@ -14,7 +14,7 @@ trait ScheduleTrait
      */
     protected $scheduledTime;
 
-    public function setSchedule(string $schedule)
+    public function setSchedule(string $schedule): void
     {
         $this->schedule = $schedule;
     }
@@ -24,7 +24,7 @@ trait ScheduleTrait
         return $this->schedule;
     }
 
-    public function setScheduledTime(int $timestamp)
+    public function setScheduledTime(int $timestamp): void
     {
         $this->scheduledTime = $timestamp;
     }
