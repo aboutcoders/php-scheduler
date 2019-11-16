@@ -31,7 +31,11 @@ class Scheduler
 
     private $staticExtension;
 
-    public function __construct(ExtensionInterface $extension = null, array $boundProcessors = [], LoggerInterface $logger = null) {
+    public function __construct(
+        ExtensionInterface $extension = null,
+        array $boundProcessors = [],
+        LoggerInterface $logger = null
+    ) {
         $this->staticExtension = $extension ?: new ChainExtension([]);
         $this->registry = new BoundProcessorRegistry($boundProcessors);
         $this->logger = $logger ?: new NullLogger();
@@ -84,10 +88,16 @@ class Scheduler
 
                 $this->logger->debug(sprintf('[Scheduler] Iterate over schedules of provider "%s"', $provider->getName()));
 
-                $preProvideSchedulesContext = new PreProvideSchedules($provider, $this->logger);
-                $extension->onPreProvideSchedules($preProvideSchedulesContext);
+                $preProvideSchedules = new PreProvideSchedules($provider, $this->logger);
+                $extension->onPreProvideSchedules($preProvideSchedules);
 
-                $schedules = $provider->provideSchedules($preProvideSchedulesContext->getLimit(), $preProvideSchedulesContext->getOffset());
+                if ($preProvideSchedules->isExecutionInterrupted()) {
+                    $this->onEnd($extension, $startTime, $preProvideSchedules->getExitStatus());
+
+                    return;
+                }
+
+                $schedules = $provider->provideSchedules($preProvideSchedules->getLimit(), $preProvideSchedules->getOffset());
                 foreach ($schedules as $schedule) {
 
                     $checkSchedule = new CheckSchedule($boundProcessor->getProvider(), $schedule, $this->logger);
@@ -110,7 +120,6 @@ class Scheduler
                         try {
 
                             $boundProcessor->getProcessor()->process($schedule);
-
                         } catch (\Exception $exception) {
                             $this->onProcessException($extension, $exception);
                         }

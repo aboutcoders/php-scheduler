@@ -27,10 +27,22 @@ class PreProvideSchedules
      */
     private $offset = null;
 
+    /**
+     * @var bool
+     */
+    private $executionInterrupted;
+
+    /**
+     * @var int
+     */
+    private $exitStatus;
+
     public function __construct(ProviderInterface $provider, LoggerInterface $logger)
     {
         $this->provider = $provider;
         $this->logger = $logger;
+
+        $this->executionInterrupted = false;
     }
 
     public function getProvider(): ProviderInterface
@@ -61,5 +73,21 @@ class PreProvideSchedules
     public function setOffset(?int $offset)
     {
         $this->offset = $offset;
+    }
+
+    public function getExitStatus(): ?int
+    {
+        return $this->exitStatus;
+    }
+
+    public function isExecutionInterrupted(): bool
+    {
+        return $this->executionInterrupted;
+    }
+
+    public function interruptExecution(?int $exitStatus = null): void
+    {
+        $this->exitStatus = $exitStatus;
+        $this->executionInterrupted = true;
     }
 }
