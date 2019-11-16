@@ -3,12 +3,14 @@
 namespace Abc\Scheduler\Extension;
 
 use Abc\Scheduler\Context\PreProcessSchedule;
+use Abc\Scheduler\Context\PreProvideSchedules;
 use Abc\Scheduler\Context\ScheduleProcessed;
 use Abc\Scheduler\PreProcessScheduleExtensionInterface;
+use Abc\Scheduler\PreProvideSchedulesExtensionInterface;
 use Abc\Scheduler\ScheduleProcessedExtensionInterface;
 use Psr\Log\LoggerInterface;
 
-class LimitConsumptionTimeExtension implements PreProcessScheduleExtensionInterface, ScheduleProcessedExtensionInterface
+class LimitConsumptionTimeExtension implements PreProcessScheduleExtensionInterface, ScheduleProcessedExtensionInterface, PreProvideSchedulesExtensionInterface
 {
     /**
      * @var \DateTime
@@ -21,6 +23,13 @@ class LimitConsumptionTimeExtension implements PreProcessScheduleExtensionInterf
     public function __construct(\DateTime $timeLimit)
     {
         $this->timeLimit = $timeLimit;
+    }
+
+    public function onPreProvideSchedules(PreProvideSchedules $context): void
+    {
+        if ($this->shouldBeStopped($context->getLogger())) {
+            $context->interruptExecution();
+        }
     }
 
     public function onPreProcessSchedule(PreProcessSchedule $context): void
