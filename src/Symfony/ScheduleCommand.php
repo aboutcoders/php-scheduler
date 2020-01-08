@@ -40,7 +40,7 @@ class ScheduleCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): ?int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $extensions = $this->getLimitsExtensions($input, $output);
 
@@ -53,6 +53,6 @@ class ScheduleCommand extends Command
 
         $this->scheduler->schedule(new ChainExtension($extensions));
 
-        return $exitStatusExtension->getExitStatus();
+        return $exitStatusExtension->getExitStatus() ?? 0;
     }
 }
