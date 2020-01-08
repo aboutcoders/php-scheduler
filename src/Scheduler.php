@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Scheduler iterates over schedules and invokes the schedule processor if the schedule is due.
+ * Scheduler iterates over schedules and invokes the bound processor if the schedule is due.
  */
 class Scheduler
 {
@@ -150,7 +150,7 @@ class Scheduler
 
     private function onProcessException(ExtensionInterface $extension, Exception $exception)
     {
-        // consider passing the exception to the an extension
+        // fixme: consider passing the exception to the an extension
         throw $exception;
     }
 }
