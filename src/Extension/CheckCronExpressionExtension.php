@@ -5,7 +5,6 @@ namespace Abc\Scheduler\Extension;
 use Abc\Scheduler\CheckScheduleExtensionInterface;
 use Abc\Scheduler\Context\CheckSchedule;
 use Cron\CronExpression;
-use DateTime;
 
 class CheckCronExpressionExtension implements CheckScheduleExtensionInterface
 {
@@ -25,7 +24,7 @@ class CheckCronExpressionExtension implements CheckScheduleExtensionInterface
         $cron = CronExpression::factory($expression);
         $now = $context->time() ?: time();
 
-        if (! $cron->isDue(new DateTime("@$now"))) {
+        if (! $cron->isDue(new \DateTime("@$now"))) {
             $context->getLogger()->debug(sprintf('[CheckCronExpressionsExtension] Schedule "%s" is not due', $expression));
             $context->setDue(false);
             return;
@@ -34,8 +33,8 @@ class CheckCronExpressionExtension implements CheckScheduleExtensionInterface
         // ensure that a schedule is not executed twice within 60 seconds
         if(null != $schedule->getScheduledTime())
         {
-            $timeDate = new DateTime("@$now");
-            $scheduleDate = new DateTime(sprintf('@%s', $schedule->getScheduledTime()));
+            $timeDate = new \DateTime("@$now");
+            $scheduleDate = new \DateTime(sprintf('@%s', $schedule->getScheduledTime()));
 
             if ($timeDate->format('Y-m-d H:i') == $scheduleDate->format('Y-m-d H:i')) {
                 $context->getLogger()->debug(sprintf('[CheckCronExpressionsExtension] Schedule "%s" is not due as already scheduled at %s', $expression, $scheduleDate->format('Y-m-d H:i')));
