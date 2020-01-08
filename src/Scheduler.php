@@ -49,7 +49,7 @@ class Scheduler
     /**
      * {@inheritDoc}
      */
-    public final function schedule(ExtensionInterface $runtimeExtension = null)
+    public function schedule(ExtensionInterface $runtimeExtension = null)
     {
         $extension = $runtimeExtension ? new ChainExtension([
             $this->staticExtension,
