@@ -1,0 +1,7 @@
+<?php
+
+namespace Abc\Scheduler;
+
+interface ExtensionInterfaceInterface extends StartExtensionInterface, InitLoggerExtensionInterface, PreIterateProvidersExtensionInterface, PreProvideSchedulesExtensionInterface, CheckScheduleExtensionInterface, PreProcessScheduleExtensionInterface, ScheduleProcessedExtensionInterface, PostIterateProvidersExtensionInterface, EndExtensionInterface
+{
+}

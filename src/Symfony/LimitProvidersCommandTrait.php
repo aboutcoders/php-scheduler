@@ -8,7 +8,7 @@ use Abc\Scheduler\Extension\LimitProcessedSchedulesExtension;
 use Abc\Scheduler\Extension\LimitProvidersExtension;
 use Abc\Scheduler\Extension\NicenessExtension;
 use Abc\Scheduler\Extension\ProvidersExtension;
-use Abc\Scheduler\ExtensionInterface;
+use Abc\Scheduler\ExtensionInterfaceInterface;
 use Abc\Scheduler\PreIterateProvidersExtensionInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

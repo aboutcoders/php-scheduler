@@ -5,27 +5,54 @@ namespace Abc\Scheduler;
 use Abc\Scheduler\Context\CheckSchedule;
 use Abc\Scheduler\Context\End;
 use Abc\Scheduler\Context\InitLogger;
+use Abc\Scheduler\Context\PostIterateProviders;
 use Abc\Scheduler\Context\PreIterateProviders;
 use Abc\Scheduler\Context\PreProcessSchedule;
 use Abc\Scheduler\Context\PreProvideSchedules;
 use Abc\Scheduler\Context\ScheduleProcessed;
 use Abc\Scheduler\Context\Start;
 
-class ChainExtension implements ExtensionInterface
+class ChainExtension implements ExtensionInterfaceInterface
 {
+    /**
+     * @var StartExtensionInterface[]
+     */
     private $startExtensions;
 
+    /**
+     * @var InitLoggerExtensionInterface[]
+     */
     private $initLoggerExtensions;
 
+    /**
+     * @var PreIterateProvidersExtensionInterface[]
+     */
     private $preIterateProvidersExtension;
 
+    /**
+     * @var PreProvideSchedulesExtensionInterface[]
+     */
     private $preProvideSchedulesExtensions;
 
+    /**
+     * @var CheckScheduleExtensionInterface[]
+     */
     private $checkScheduleExtensions;
 
+    /**
+     * @var PreProcessScheduleExtensionInterface[]
+     */
     private $preProcessScheduleExtensions;
 
+    /**
+     * @var ScheduleProcessedExtensionInterface[]
+     */
     private $scheduleProcessedExtensions;
+
+    /**
+     * @var PostIterateProvidersExtensionInterface[]
+     */
+    private $postIterateProvidersExtension;
 
     private $endExtensions;
 
@@ -37,11 +64,12 @@ class ChainExtension implements ExtensionInterface
         $this->preProvideSchedulesExtensions = [];
         $this->checkScheduleExtensions = [];
         $this->preProcessScheduleExtensions = [];
+        $this->postIterateProvidersExtension = [];
         $this->scheduleProcessedExtensions = [];
         $this->endExtensions = [];
 
         array_walk($extensions, function ($extension) {
-            if ($extension instanceof ExtensionInterface) {
+            if ($extension instanceof ExtensionInterfaceInterface) {
                 $this->startExtensions[] = $extension;
                 $this->initLoggerExtensions[] = $extension;
                 $this->preIterateProvidersExtension[] = $extension;
@@ -49,6 +77,7 @@ class ChainExtension implements ExtensionInterface
                 $this->checkScheduleExtensions[] = $extension;
                 $this->preProcessScheduleExtensions[] = $extension;
                 $this->scheduleProcessedExtensions[] = $extension;
+                $this->postIterateProvidersExtension[] = $extension;
                 $this->endExtensions[] = $extension;
 
                 return;
@@ -93,6 +122,12 @@ class ChainExtension implements ExtensionInterface
 
             if ($extension instanceof ScheduleProcessedExtensionInterface) {
                 $this->scheduleProcessedExtensions[] = $extension;
+
+                $extensionValid = true;
+            }
+
+            if ($extension instanceof PostIterateProvidersExtensionInterface) {
+                $this->postIterateProvidersExtension[] = $extension;
 
                 $extensionValid = true;
             }
@@ -155,6 +190,13 @@ class ChainExtension implements ExtensionInterface
     {
         foreach ($this->scheduleProcessedExtensions as $extension) {
             $extension->onScheduleProcessed($context);
+        }
+    }
+
+    public function onPostIterateProviders(PostIterateProviders $context): void
+    {
+        foreach ($this->postIterateProvidersExtension as $extension) {
+            $extension->onPostIterateProviders($context);
         }
     }
 

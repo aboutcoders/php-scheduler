@@ -4,10 +4,13 @@ namespace Abc\Scheduler\Tests;
 
 use Abc\Scheduler\Context\CheckSchedule;
 use Abc\Scheduler\Context\InitLogger;
+use Abc\Scheduler\Context\PostIterateProviders;
+use Abc\Scheduler\Context\PreIterateProviders;
 use Abc\Scheduler\Context\PreProcessSchedule;
+use Abc\Scheduler\Context\PreProvideSchedules;
 use Abc\Scheduler\Context\ScheduleProcessed;
 use Abc\Scheduler\Context\Start;
-use Abc\Scheduler\ExtensionInterface;
+use Abc\Scheduler\ExtensionInterfaceInterface;
 use Abc\Scheduler\ProviderInterface;
 use Abc\Scheduler\ProcessorInterface;
 use Abc\Scheduler\ScheduleInterface;
@@ -21,7 +24,7 @@ use Psr\Log\NullLogger;
 class SchedulerTest extends TestCase
 {
     /**
-     * @var ExtensionInterface|MockObject
+     * @var ExtensionInterfaceInterface|MockObject
      */
     private $constructorExtensionMock;
 
@@ -30,7 +33,7 @@ class SchedulerTest extends TestCase
 
     public function setUp()
     {
-        $this->constructorExtensionMock = $this->createMock(ExtensionInterface::class);
+        $this->constructorExtensionMock = $this->createMock(ExtensionInterfaceInterface::class);
         $this->subject = new Scheduler($this->constructorExtensionMock);
     }
 
@@ -40,9 +43,9 @@ class SchedulerTest extends TestCase
      */
     public function scheduleThrowsExceptionIfWithNoProcessorsBound()
     {
-        $this->setCycleLimit($this->constructorExtensionMock, 1);
+        $this->exitAfterSingleIteration();
 
-        $runtimeExtensionMock = $this->createMock(ExtensionInterface::class);
+        $runtimeExtensionMock = $this->createMock(ExtensionInterfaceInterface::class);
         $this->subject->schedule($runtimeExtensionMock);
     }
 
@@ -51,7 +54,7 @@ class SchedulerTest extends TestCase
      */
     public function scheduleCallsProcessorOnDueSchedule()
     {
-        $this->setCycleLimit($this->constructorExtensionMock, 1);
+        $this->exitAfterSingleIteration();
 
         $schedule = $this->createMock(ScheduleInterface::class);
 
@@ -75,6 +78,40 @@ class SchedulerTest extends TestCase
         $this->subject->schedule();
     }
 
+    /**
+     * @test
+     */
+    public function scheduleThrowsProcessorException()
+    {
+        $this->exitAfterSingleIteration();
+
+        $schedule = $this->createMock(ScheduleInterface::class);
+
+        $type = 'someType';
+        $providerMock = $this->createMock(ProviderInterface::class);
+        $providerMock->expects($this->any())->method('getName')->wilLReturn($type);
+        $providerMock->expects($this->once())->method('provideSchedules')->willReturn([$schedule]);
+
+        $this->constructorExtensionMock->expects($this->once())->method('onCheckSchedule')->willReturnCallback(function (
+            CheckSchedule $context
+        ) {
+            $context->setDue(true);
+        });
+
+        $processorMock = $this->createMock(ProcessorInterface::class);
+
+        $processorMock->expects($this->once())->method('process')->willThrowException(new \Exception('foo'));
+
+        $this->subject->bindProcessor($providerMock, $processorMock);
+
+        $this->expectException(\Exception::class);
+
+        $this->subject->schedule();
+    }
+
+    /**
+     * @test
+     */
     public function scheduleInterruptsExecutionOnStart()
     {
         $this->constructorExtensionMock->expects($this->once())->method('onStart')->willReturnCallback($this->getInterruptExecutionCallback());
@@ -85,15 +122,108 @@ class SchedulerTest extends TestCase
 
     /**
      * @test
+     */
+    public function scheduleInterruptsExecutionOnPreIterateProviders()
+    {
+        $this->exitAfterSingleIteration();
+
+        $schedule = $this->createMock(ScheduleInterface::class);
+
+        $this->constructorExtensionMock->expects($this->any())->method('onPreIterateProviders')->willReturnCallback(function (
+            PreIterateProviders $context
+        ) {
+            $context->interruptExecution();
+        });
+
+        $providerMock = $this->createMock(ProviderInterface::class);
+        $providerMock->expects($this->never())->method('provideSchedules')->willReturn([$schedule]);
+
+        $this->constructorExtensionMock->expects($this->never())->method('onCheckSchedule');
+
+        $processorMock = $this->createMock(ProcessorInterface::class);
+
+        $processorMock->expects($this->never())->method('process');
+
+        $this->subject->bindProcessor($providerMock, $processorMock);
+
+        $this->subject->schedule();
+    }
+
+    /**
+     * @test
+     */
+    public function scheduleInterruptsExecutionOnPreProvideSchedules()
+    {
+        $this->exitAfterSingleIteration();
+
+        $schedule = $this->createMock(ScheduleInterface::class);
+
+        $providerMock = $this->createMock(ProviderInterface::class);
+        $providerMock->expects($this->never())->method('provideSchedules')->willReturn([$schedule]);
+
+        $this->constructorExtensionMock->expects($this->once())->method('onPreProvideSchedules')->willReturnCallback(function (
+            PreProvideSchedules $context
+        ) {
+            $context->interruptExecution();
+        });
+
+        $this->constructorExtensionMock->expects($this->never())->method('onCheckSchedule');
+
+        $processorMock = $this->createMock(ProcessorInterface::class);
+
+        $processorMock->expects($this->never())->method('process');
+
+        $this->subject->bindProcessor($providerMock, $processorMock);
+
+        $this->subject->schedule();
+    }
+
+    /**
+     * @test
+     */
+    public function scheduleInterruptsExecutionOnPreProcessSchedule()
+    {
+        $this->exitAfterSingleIteration();
+
+        $schedule = $this->createMock(ScheduleInterface::class);
+
+        $type = 'someType';
+        $providerMock = $this->createMock(ProviderInterface::class);
+        $providerMock->expects($this->any())->method('getName')->wilLReturn($type);
+        $providerMock->expects($this->once())->method('provideSchedules')->willReturn([$schedule]);
+
+        $this->constructorExtensionMock->expects($this->once())->method('onCheckSchedule')->willReturnCallback(function (
+            CheckSchedule $context
+        ) {
+            $context->setDue(true);
+        });
+
+        $this->constructorExtensionMock->expects($this->once())->method('onPreProcessSchedule')->willReturnCallback(function (
+            PreProcessSchedule $context
+        ) {
+            $context->interruptExecution();
+        });
+
+        $processorMock = $this->createMock(ProcessorInterface::class);
+
+        $processorMock->expects($this->never())->method('process')->with();
+
+        $this->subject->bindProcessor($providerMock, $processorMock);
+
+        $this->subject->schedule();
+    }
+
+    /**
+     * @test
      * @expectedException Exception foobar
      */
     public function scheduleMergesExtensions()
     {
-        $this->setCycleLimit($this->constructorExtensionMock, 1);
+        $this->exitAfterSingleIteration();
 
         $this->constructorExtensionMock->expects($this->once())->method('onInitLogger');
 
-        $runtimeExtension = $this->createMock(ExtensionInterface::class);
+        $runtimeExtension = $this->createMock(ExtensionInterfaceInterface::class);
         $runtimeExtension->expects($this->once())->method('onInitLogger')->willThrowException(new \Exception('foobar'));
 
         $this->subject->schedule($runtimeExtension);
@@ -104,7 +234,7 @@ class SchedulerTest extends TestCase
      */
     public function scheduleCallsExtensionsInOrder()
     {
-        $this->setCycleLimit($this->constructorExtensionMock, 1);
+       $this->exitAfterSingleIteration();
 
         $schedule = $this->createMock(ScheduleInterface::class);
 
@@ -131,7 +261,7 @@ class SchedulerTest extends TestCase
             $context->setDue(true);
         };
 
-        $runtimeExtension = $this->createMock(ExtensionInterface::class);
+        $runtimeExtension = $this->createMock(ExtensionInterfaceInterface::class);
         $runtimeExtension->expects($this->at(0))->method('onInitLogger')->willReturnCallback($changeLoggerCallback);
         $runtimeExtension->expects($this->at(1))->method('onStart')->with($this->callback($isCustomLoggerCallback));
         $runtimeExtension->expects($this->at(2))->method('onPreIterateProviders')->with($this->callback($isCustomLoggerCallback));
@@ -139,7 +269,8 @@ class SchedulerTest extends TestCase
         $runtimeExtension->expects($this->at(4))->method('onCheckSchedule')->with($this->callback($isCustomLoggerCallback))->willReturnCallback($setScheduleDue);
         $runtimeExtension->expects($this->at(5))->method('onPreProcessSchedule')->with($this->callback($isCustomLoggerCallback));
         $runtimeExtension->expects($this->at(6))->method('onScheduleProcessed')->with($this->callback($isCustomLoggerCallback));
-        $runtimeExtension->expects($this->at(7))->method('onEnd')->with($this->callback($isCustomLoggerCallback));
+        $runtimeExtension->expects($this->at(7))->method('onPostIterateProviders')->with($this->callback($isCustomLoggerCallback));
+        $runtimeExtension->expects($this->at(8))->method('onEnd')->with($this->callback($isCustomLoggerCallback));
 
         $this->subject->schedule($runtimeExtension);
     }
@@ -167,7 +298,7 @@ class SchedulerTest extends TestCase
             $context->setDue(true);
         };;
 
-        $runtimeExtension = $this->createMock(ExtensionInterface::class);
+        $runtimeExtension = $this->createMock(ExtensionInterfaceInterface::class);
         $runtimeExtension->expects($this->any())->method('onCheckSchedule')->willReturnCallback($setScheduleDue);
         $runtimeExtension->expects($this->at(5))->method('onPreProcessSchedule')->withConsecutive([$this->callback($this->getCycleEqualsCallback(1))], [$this->callback($this->getCycleEqualsCallback(2))]);
         $runtimeExtension->expects($this->at(6))->method('onScheduleProcessed')->withConsecutive([$this->callback($this->getCycleEqualsCallback(1))], [$this->callback($this->getCycleEqualsCallback(2))]);
@@ -192,6 +323,14 @@ class SchedulerTest extends TestCase
         };
 
         $extension->expects($this->any())->method('onScheduleProcessed')->willReturnCallback($callback);
+    }
+
+    private function exitAfterSingleIteration() {
+        $this->constructorExtensionMock->expects($this->any())->method('onPostIterateProviders')->willReturnCallback(function (
+            PostIterateProviders $context
+        ) {
+            $context->interruptExecution();
+        });
     }
 
     private function getInterruptExecutionCallback() {

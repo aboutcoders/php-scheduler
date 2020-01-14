@@ -5,6 +5,7 @@ namespace Abc\Scheduler;
 use Abc\Scheduler\Context\CheckSchedule;
 use Abc\Scheduler\Context\End;
 use Abc\Scheduler\Context\InitLogger;
+use Abc\Scheduler\Context\PostIterateProviders;
 use Abc\Scheduler\Context\PreIterateProviders;
 use Abc\Scheduler\Context\PreProvideSchedules;
 use Abc\Scheduler\Context\PreProcessSchedule;
@@ -32,7 +33,7 @@ class Scheduler
     private $staticExtension;
 
     public function __construct(
-        ExtensionInterface $extension = null,
+        ExtensionInterfaceInterface $extension = null,
         array $boundProcessors = [],
         LoggerInterface $logger = null
     ) {
@@ -49,7 +50,7 @@ class Scheduler
     /**
      * {@inheritDoc}
      */
-    public function schedule(ExtensionInterface $runtimeExtension = null)
+    public function schedule(ExtensionInterfaceInterface $runtimeExtension = null)
     {
         $extension = $runtimeExtension ? new ChainExtension([
             $this->staticExtension,
@@ -82,6 +83,12 @@ class Scheduler
             $preIterateProvidersContext = new PreIterateProviders($this->registry->getProviderNames(), $this->logger);
             $extension->onPreIterateProviders($preIterateProvidersContext);
 
+            if ($preIterateProvidersContext->isExecutionInterrupted()) {
+                $this->onEnd($extension, $startTime, $preIterateProvidersContext->getExitStatus());
+
+                return;
+            }
+
             foreach ($this->registry->all($preIterateProvidersContext->getProviderNames()) as $boundProcessor) {
 
                 $provider = $boundProcessor->getProvider();
@@ -102,10 +109,6 @@ class Scheduler
 
                     $checkSchedule = new CheckSchedule($boundProcessor->getProvider(), $schedule, $this->logger);
                     $extension->onCheckSchedule($checkSchedule);
-
-                    if ($checkSchedule->isInterruptProvider()) {
-                        break;
-                    }
 
                     if ($checkSchedule->isDue()) {
                         $preProcessSchedule = new PreProcessSchedule($cycle, $startTime, $this->logger);
@@ -137,10 +140,19 @@ class Scheduler
                     ++$cycle;
                 }
             }
+
+            $postIterateProviders = new PostIterateProviders($this->logger);
+            $extension->onPostIterateProviders($postIterateProviders);
+
+            if ($postIterateProviders->isExecutionInterrupted()) {
+                $this->onEnd($extension, $startTime, $postIterateProviders->getExitStatus());
+
+                return;
+            }
         }
     }
 
-    private function onEnd(ExtensionInterface $extension, int $startTime, ?int $exitStatus = null): void
+    private function onEnd(ExtensionInterfaceInterface $extension, int $startTime, ?int $exitStatus = null): void
     {
         $endTime = (int) (microtime(true) * 1000);
 
@@ -148,7 +160,7 @@ class Scheduler
         $extension->onEnd($endContext);
     }
 
-    private function onProcessException(ExtensionInterface $extension, Exception $exception)
+    private function onProcessException(ExtensionInterfaceInterface $extension, Exception $exception)
     {
         // fixme: consider passing the exception to the an extension
         throw $exception;

@@ -81,14 +81,4 @@ class CheckSchedule
     {
         $this->time = $timestamp;
     }
-
-    public function interruptProvider()
-    {
-        $this->interruptProvider = true;
-    }
-
-    public function isInterruptProvider(): bool
-    {
-        return $this->interruptProvider;
-    }
 }
