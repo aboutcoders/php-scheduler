@@ -1,6 +1,6 @@
 <?php
 
-namespace Enqueue\Consumption\Extension;
+namespace Abc\Scheduler\Extension;
 
 use Abc\Scheduler\Context\PreProcessSchedule;
 use Abc\Scheduler\Context\PreProvideSchedules;
