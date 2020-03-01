@@ -31,7 +31,7 @@ class SchedulerTest extends TestCase
     /** @var Scheduler */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->constructorExtensionMock = $this->createMock(ExtensionInterfaceInterface::class);
         $this->subject = new Scheduler($this->constructorExtensionMock);
@@ -39,13 +39,15 @@ class SchedulerTest extends TestCase
 
     /**
      * @test
-     * @expectedException \LogicException
      */
     public function scheduleThrowsExceptionIfWithNoProcessorsBound()
     {
         $this->exitAfterSingleIteration();
 
         $runtimeExtensionMock = $this->createMock(ExtensionInterfaceInterface::class);
+
+        $this->expectException(\LogicException::class);
+
         $this->subject->schedule($runtimeExtensionMock);
     }
 
@@ -215,7 +217,6 @@ class SchedulerTest extends TestCase
 
     /**
      * @test
-     * @expectedException Exception foobar
      */
     public function scheduleMergesExtensions()
     {
@@ -225,6 +226,9 @@ class SchedulerTest extends TestCase
 
         $runtimeExtension = $this->createMock(ExtensionInterfaceInterface::class);
         $runtimeExtension->expects($this->once())->method('onInitLogger')->willThrowException(new \Exception('foobar'));
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('foobar');
 
         $this->subject->schedule($runtimeExtension);
     }

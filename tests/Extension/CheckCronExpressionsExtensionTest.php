@@ -22,7 +22,7 @@ class CheckCronExpressionExtensionTest extends TestCase
      */
     private $scheduleMock;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->providerMock = $this->createMock(ProviderInterface::class);
         $this->scheduleMock = $this->createMock(ScheduleInterface::class);
