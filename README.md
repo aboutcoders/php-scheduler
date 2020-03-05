@@ -9,7 +9,7 @@ Features:
 
 [![Build Status](https://travis-ci.org/aboutcoders/php-scheduler.png?branch=master)](https://travis-ci.org/aboutcoders/php-scheduler)
 
-**Note: This project is still in an experimental phase!**
+**Note: This project is still experimental!**
 
 ## Installation
 
