@@ -12,4 +12,6 @@ interface ScheduleInterface
     public function setScheduledTime(int $timestamp);
 
     public function getScheduledTime(): ?int;
+
+    public function getConcurrencyPolicy(): ConcurrencyPolicy;
 }

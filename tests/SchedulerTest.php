@@ -9,22 +9,19 @@ use Abc\Scheduler\Context\PreIterateProviders;
 use Abc\Scheduler\Context\PreProcessSchedule;
 use Abc\Scheduler\Context\PreProvideSchedules;
 use Abc\Scheduler\Context\ScheduleProcessed;
-use Abc\Scheduler\Context\Start;
-use Abc\Scheduler\ExtensionInterfaceInterface;
+use Abc\Scheduler\ExtensionInterface;
 use Abc\Scheduler\ProviderInterface;
 use Abc\Scheduler\ProcessorInterface;
 use Abc\Scheduler\ScheduleInterface;
 use Abc\Scheduler\Scheduler;
-use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 class SchedulerTest extends TestCase
 {
     /**
-     * @var ExtensionInterfaceInterface|MockObject
+     * @var ExtensionInterface|MockObject
      */
     private $constructorExtensionMock;
 
@@ -33,7 +30,7 @@ class SchedulerTest extends TestCase
 
     public function setUp(): void
     {
-        $this->constructorExtensionMock = $this->createMock(ExtensionInterfaceInterface::class);
+        $this->constructorExtensionMock = $this->createMock(ExtensionInterface::class);
         $this->subject = new Scheduler($this->constructorExtensionMock);
     }
 
@@ -44,7 +41,7 @@ class SchedulerTest extends TestCase
     {
         $this->exitAfterSingleIteration();
 
-        $runtimeExtensionMock = $this->createMock(ExtensionInterfaceInterface::class);
+        $runtimeExtensionMock = $this->createMock(ExtensionInterface::class);
 
         $this->expectException(\LogicException::class);
 
@@ -224,7 +221,7 @@ class SchedulerTest extends TestCase
 
         $this->constructorExtensionMock->expects($this->once())->method('onInitLogger');
 
-        $runtimeExtension = $this->createMock(ExtensionInterfaceInterface::class);
+        $runtimeExtension = $this->createMock(ExtensionInterface::class);
         $runtimeExtension->expects($this->once())->method('onInitLogger')->willThrowException(new \Exception('foobar'));
 
         $this->expectException(\Exception::class);
@@ -265,7 +262,7 @@ class SchedulerTest extends TestCase
             $context->setDue(true);
         };
 
-        $runtimeExtension = $this->createMock(ExtensionInterfaceInterface::class);
+        $runtimeExtension = $this->createMock(ExtensionInterface::class);
         $runtimeExtension->expects($this->at(0))->method('onInitLogger')->willReturnCallback($changeLoggerCallback);
         $runtimeExtension->expects($this->at(1))->method('onStart')->with($this->callback($isCustomLoggerCallback));
         $runtimeExtension->expects($this->at(2))->method('onPreIterateProviders')->with($this->callback($isCustomLoggerCallback));
@@ -302,7 +299,7 @@ class SchedulerTest extends TestCase
             $context->setDue(true);
         };;
 
-        $runtimeExtension = $this->createMock(ExtensionInterfaceInterface::class);
+        $runtimeExtension = $this->createMock(ExtensionInterface::class);
         $runtimeExtension->expects($this->any())->method('onCheckSchedule')->willReturnCallback($setScheduleDue);
         $runtimeExtension->expects($this->at(5))->method('onPreProcessSchedule')->withConsecutive([$this->callback($this->getCycleEqualsCallback(1))], [$this->callback($this->getCycleEqualsCallback(2))]);
         $runtimeExtension->expects($this->at(6))->method('onScheduleProcessed')->withConsecutive([$this->callback($this->getCycleEqualsCallback(1))], [$this->callback($this->getCycleEqualsCallback(2))]);

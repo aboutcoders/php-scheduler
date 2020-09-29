@@ -2,6 +2,7 @@
 
 namespace Abc\Scheduler\Tests\Extension;
 
+use Abc\Scheduler\ConcurrencyPolicy;
 use Abc\Scheduler\Context\CheckSchedule;
 use Abc\Scheduler\Extension\CheckCronExpressionExtension;
 use Abc\Scheduler\ProviderInterface;
@@ -31,7 +32,7 @@ class CheckCronExpressionExtensionTest extends TestCase
     /**
      * @test
      */
-    public function onCheckScheduleSkipsInvalidExpression()
+    public function onCheckScheduleWithInvalidExpression()
     {
         $subject = new CheckCronExpressionExtension();
 
@@ -47,7 +48,7 @@ class CheckCronExpressionExtensionTest extends TestCase
     /**
      * @test
      */
-    public function onCheckScheduleSetsDueToFalse()
+    public function onCheckScheduleWithNonDueSchedule()
     {
         $subject = new CheckCronExpressionExtension();
 
@@ -63,7 +64,7 @@ class CheckCronExpressionExtensionTest extends TestCase
     /**
      * @test
      */
-    public function onCheckScheduleSetsDueToTrue()
+    public function onCheckScheduleWithDueSchedule()
     {
         $subject = new CheckCronExpressionExtension();
 
@@ -78,9 +79,27 @@ class CheckCronExpressionExtensionTest extends TestCase
 
     /**
      * @test
+     */
+    public function onCheckScheduleWithDueScheduleAndForbidConcurrencyPolicy()
+    {
+        $subject = new CheckCronExpressionExtension();
+
+        $context = new CheckSchedule($this->providerMock, $this->scheduleMock, new NullLogger());
+
+        $this->scheduleMock->expects($this->any())->method('getSchedule')->willReturn('* * * * *');
+        $this->scheduleMock->expects($this->any())->method('getConcurrencyPolicy')->willReturn(ConcurrencyPolicy::FORBID());
+        $this->providerMock->expects($this->once())->method('existsConcurrent')->willReturn(true);
+
+        $subject->onCheckSchedule($context);
+
+        $this->assertFalse($context->isDue());
+    }
+
+    /**
+     * @test
      * @dataProvider provideDatePairs
      */
-    public function onCheckSetsDueToFalseIfScheduledSameMinute(int $time, int $scheduled, bool $isDue)
+    public function onCheckScheduleWithAlreadyScheduled(int $time, int $scheduled, bool $isDue)
     {
         $subject = new CheckCronExpressionExtension();
 

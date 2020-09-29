@@ -14,6 +14,11 @@ class NullProvider implements ProviderInterface
         return [];
     }
 
+    public function existsConcurrent(ScheduleInterface $schedule): bool
+    {
+        return false;
+    }
+
     public function save(ScheduleInterface $schedule): void
     {
     }

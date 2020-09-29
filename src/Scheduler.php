@@ -33,7 +33,7 @@ class Scheduler
     private $staticExtension;
 
     public function __construct(
-        ExtensionInterfaceInterface $extension = null,
+        ExtensionInterface $extension = null,
         array $boundProcessors = [],
         LoggerInterface $logger = null
     ) {
@@ -50,7 +50,7 @@ class Scheduler
     /**
      * {@inheritDoc}
      */
-    public function schedule(ExtensionInterfaceInterface $runtimeExtension = null)
+    public function schedule(ExtensionInterface $runtimeExtension = null)
     {
         $extension = $runtimeExtension ? new ChainExtension([
             $this->staticExtension,
@@ -152,7 +152,7 @@ class Scheduler
         }
     }
 
-    private function onEnd(ExtensionInterfaceInterface $extension, int $startTime, ?int $exitStatus = null): void
+    private function onEnd(ExtensionInterface $extension, int $startTime, ?int $exitStatus = null): void
     {
         $endTime = (int) (microtime(true) * 1000);
 
@@ -160,7 +160,7 @@ class Scheduler
         $extension->onEnd($endContext);
     }
 
-    private function onProcessException(ExtensionInterfaceInterface $extension, Exception $exception)
+    private function onProcessException(ExtensionInterface $extension, Exception $exception)
     {
         // fixme: consider passing the exception to the an extension
         throw $exception;
