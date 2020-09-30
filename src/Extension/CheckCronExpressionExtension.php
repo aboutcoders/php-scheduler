@@ -63,8 +63,8 @@ class CheckCronExpressionExtension implements CheckScheduleExtensionInterface
         // apply concurrency policy
         if (ConcurrencyPolicy::FORBID() == $schedule->getConcurrencyPolicy() && $context->getProvider(
             )->existsConcurrent($schedule)) {
-            $context->getLogger()->debug(
-                sprintf('[CheckCronExpressionsExtension] Schedule not due since concurrent schedule exists and concurrency policy is: %s', $schedule->getConcurrencyPolicy())
+            $context->getLogger()->warning(
+                sprintf('[CheckCronExpressionsExtension] Skip schedule since concurrent schedule exists: %s', $schedule->getConcurrencyPolicy())
             );
             $context->setDue(false);
 
