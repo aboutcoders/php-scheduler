@@ -12,7 +12,7 @@ use Abc\Scheduler\Context\PreProvideSchedules;
 use Abc\Scheduler\Context\ScheduleProcessed;
 use Abc\Scheduler\Context\Start;
 
-class ChainExtension implements ExtensionInterfaceInterface
+class ChainExtension implements ExtensionInterface
 {
     /**
      * @var StartExtensionInterface[]
@@ -69,7 +69,7 @@ class ChainExtension implements ExtensionInterfaceInterface
         $this->endExtensions = [];
 
         array_walk($extensions, function ($extension) {
-            if ($extension instanceof ExtensionInterfaceInterface) {
+            if ($extension instanceof ExtensionInterface) {
                 $this->startExtensions[] = $extension;
                 $this->initLoggerExtensions[] = $extension;
                 $this->preIterateProvidersExtension[] = $extension;

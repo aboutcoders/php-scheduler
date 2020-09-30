@@ -6,7 +6,7 @@ use Abc\Scheduler\Extension\LimitConsumptionTimeExtension;
 use Abc\Scheduler\Extension\LimitMemoryExtension;
 use Abc\Scheduler\Extension\LimitProcessedSchedulesExtension;
 use Abc\Scheduler\Extension\NicenessExtension;
-use Abc\Scheduler\ExtensionInterfaceInterface;
+use Abc\Scheduler\ExtensionInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,7 +26,7 @@ trait LimitExtensionsCommandTrait
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
-     * @return ExtensionInterfaceInterface[]
+     * @return ExtensionInterface[]
      * @throws \Exception
      *
      */

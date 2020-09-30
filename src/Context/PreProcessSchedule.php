@@ -36,7 +36,6 @@ class PreProcessSchedule
         $this->logger = $logger;
         $this->cycle = $cycle;
         $this->startTime = $startTime;
-
         $this->executionInterrupted = false;
     }
 
